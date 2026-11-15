@@ -84,7 +84,8 @@ ON DUPLICATE KEY UPDATE descripcion = VALUES(descripcion);
 
 -- Horarios de ejemplo para los proximos 7 dias (10:00 a 16:00 cada hora).
 -- database/routines.sql contiene el procedimiento que los genera solo.
-INSERT INTO horario (idHorarios, fecha, hora, estadoHorario)
+-- Se usa INSERT IGNORE para que el script sea idempotente.
+INSERT IGNORE INTO horario (idHorarios, fecha, hora, estadoHorario)
 SELECT
   1000 + (DATEDIFF(d.fecha, CURDATE()) * 10) + h.orden AS idHorarios,
   d.fecha,
@@ -106,5 +107,4 @@ CROSS JOIN (
   UNION ALL SELECT 4, '14:00:00'
   UNION ALL SELECT 5, '15:00:00'
   UNION ALL SELECT 6, '16:00:00'
-) AS h
-ON DUPLICATE KEY UPDATE estadoHorario = horario.estadoHorario;
+) AS h;
