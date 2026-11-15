@@ -1,0 +1,14 @@
+# Normaliza los finales de linea a LF y evita diffs ruidosos entre Windows/Linux.
+* text=auto eol=lf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+
+# Archivos de lock: se tratan como texto generado
+package-lock.json text eol=lf linguist-generated=true
