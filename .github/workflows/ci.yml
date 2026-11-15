@@ -1,4 +1,4 @@
-﻿name: CI
+name: CI
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
       run:
         working-directory: server
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
@@ -32,7 +32,7 @@ jobs:
       run:
         working-directory: client
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
@@ -51,7 +51,7 @@ jobs:
       run:
         working-directory: client_Movil
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
