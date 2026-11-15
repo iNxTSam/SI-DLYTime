@@ -19,6 +19,6 @@
     "test:client": "npm --prefix client test"
   },
   "devDependencies": {
-    "concurrently": "^9.1.0"
+    "concurrently": "^10.0.7"
   }
 }

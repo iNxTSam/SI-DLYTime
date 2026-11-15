@@ -23,13 +23,18 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.5.0",
     "mysql2": "^3.14.0",
-    "nodemailer": "^6.9.16",
+    "nodemailer": "^10.5.0",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "nodemon": "^3.1.7",
+    "jest": "^30.5.2",
+    "nodemon": "^3.1.14",
     "supertest": "^7.1.1"
+  },
+  "overrides": {
+    "minimatch": "^11.0.1",
+    "glob": "^14.0.2",
+    "brace-expansion": "^5.0.13"
   }
 }

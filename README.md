@@ -5,8 +5,8 @@ Sistema de gestión de citas y historial clínico para consultorios oftalmológi
 | Componente | Stack | Carpeta |
 | --- | --- | --- |
 | API REST | Node.js · Express 4 · MySQL 8 | `server/` |
-| Cliente web | React 18 · Vite 6 · React Router | `client/` |
-| App móvil | React Native · Expo 52 · TypeScript | `client_Movil/` |
+| Cliente web | React 18 · Vite 8 · React Router 7 | `client/` |
+| App móvil | React Native 0.88 · Expo 58 · TypeScript | `client_Movil/` |
 
 ---
 
@@ -20,6 +20,7 @@ Sistema de gestión de citas y historial clínico para consultorios oftalmológi
 - [Scripts disponibles](#scripts-disponibles)
 - [API](#api)
 - [Seguridad](#seguridad)
+- [Auditoría de dependencias](#auditoría-de-dependencias)
 - [Pruebas](#pruebas)
 - [Docker](#docker)
 - [Cambios respecto a la versión original](#cambios-respecto-a-la-versión-original)
@@ -83,7 +84,7 @@ Sistema de gestión de citas y historial clínico para consultorios oftalmológi
 
 ## Requisitos
 
-- **Node.js 18+** (probado con Node 24)
+- **Node.js 20.19+** (probado con Node 24)
 - **MySQL 8** o MariaDB 10.4+
 - **npm 9+**
 - Para la app móvil: la app **Expo Go** en el teléfono o un emulador
@@ -312,6 +313,46 @@ Lo que quedó implementado en esta versión:
 
 ---
 
+## Auditoría de dependencias
+
+Estado tras actualizar el árbol completo de dependencias:
+
+| Proyecto | Alertas al inicio | Ahora |
+| --- | --- | --- |
+| Raíz (`concurrently`) | 4 (1 crítica) | **0** |
+| API (`server/`) | 24 (5 altas) | 5 bajas, todas por `deepmerge` |
+| Web (`client/`) | 9 (3 críticas) | **0** |
+| Móvil (`client_Movil/`) | 72 (40 altas) | **0** |
+
+```bash
+npm audit            # en cada carpeta
+npx expo-doctor      # en client_Movil (20/20 checks)
+```
+
+**Qué se actualizó**
+
+| Dependencia | Antes | Ahora |
+| --- | --- | --- |
+| `nodemailer` | 6.9 | 10.5 |
+| `axios` | 1.8 | 1.21 |
+| `moment` | 2.30 | 2.31 |
+| `vite` | 6 | 8 |
+| `vitest` | 2 | 5 |
+| `react-router-dom` | 6 | 7 |
+| `jspdf` | 3 | 4 |
+| `expo` / `react-native` | SDK 52 / 0.76 | SDK 58 / 0.88 |
+| `concurrently` | 9 | 10 |
+
+**Overrides aplicados**
+
+`minimatch`, `glob` y `brace-expansion` se fuerzan a versiones parcheadas con `overrides` en `server/package.json`, y `minimatch` en `client_Movil/package.json`. Sin ellos, las herramientas de build seguían arrastrando versiones con DoS por backtracking.
+
+**Lo que queda**
+
+`deepmerge@4.3.1` tiene una vulnerabilidad **sin parche publicado** (prototype poisoning de severidad baja). Solo lo usa `jest-config`, es decir, el runner de pruebas: no toca código en producción y no hay versión corregida a la que migrar. Desaparecerá cuando el ecosistema de Jest publique una corrección.
+
+---
+
 ## Pruebas
 
 ```bash
@@ -373,12 +414,13 @@ DB_NAME=dlytime
 - `mysql` → `mysql2/promise` con pool, `async/await` y transacciones reales.
 - Backend en capas: `routes` → `controllers` → `services`.
 - `server/package.json`: de 156 dependencias declaradas a 12 reales.
-- Cliente web migrado de Create React App a **Vite 6**.
+- Cliente web migrado de Create React App a **Vite 6** (y luego a Vite 8 con Vitest 5 y React Router 7).
 - Cliente HTTP único en web y móvil, con inyección de token y manejo de 401.
 - URLs del API por variable de entorno (ya no hay `localhost:3001` ni IPs fijas).
 - Estructura del cliente web: `pages/`, `components/`, `styles/`, `api/`, `utils/`.
 - Bootstrap servido desde `node_modules` en lugar de un CDN.
 - `multer` 2.x, `helmet` y `express-rate-limit` añadidos.
+- App móvil migrada de Expo SDK 52 a **SDK 58** (React Native 0.88, React 19, Reanimated 4).
 
 ---
 
@@ -390,6 +432,8 @@ DB_NAME=dlytime
 - La contraseña inicial de un cliente creado desde el panel es su número de documento (comportamiento heredado).
 - Falta paginación en los listados; funcionan bien con los volúmenes actuales.
 - No hay tests de la app móvil.
+- La app móvil se validó con `tsc`, `expo-doctor` (20/20) y un bundle real de Android (`expo export`), pero no se ejecutó en un dispositivo físico tras el salto a SDK 58. Conviene probarla antes de publicar.
+- Las pruebas móviles dependen de `EXPO_PUBLIC_API_URL`; en Expo Go el teléfono debe estar en la misma red que el equipo.
 
 ---
 
