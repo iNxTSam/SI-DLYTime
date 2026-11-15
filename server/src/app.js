@@ -40,10 +40,27 @@ function createApp() {
 
   app.use(
     helmet({
-      // La API entrega JSON y PDFs; se relaja la politica de recursos para que
-      // el cliente pueda enlazar los archivos de /uploads.
+      // La API entrega JSON y PDFs; se permite que otro origen enlace los
+      // archivos de /uploads.
       crossOriginResourcePolicy: { policy: 'cross-origin' },
-      contentSecurityPolicy: false,
+      // CSP explicita en lugar de desactivarla: la API no sirve HTML propio
+      // salvo /api-docs, que necesita estilos en linea.
+      contentSecurityPolicy: {
+        useDefaults: false,
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:'],
+          fontSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+          frameAncestors: ["'none'"],
+          ...(config.isProduction ? { upgradeInsecureRequests: [] } : {}),
+        },
+      },
     })
   );
 

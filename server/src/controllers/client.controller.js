@@ -1,8 +1,8 @@
 'use strict';
 
-const fs = require('fs');
 const clientService = require('../services/client.service');
 const { asyncHandler } = require('../utils/asyncHandler');
+const { removeUploadedFile } = require('../middlewares/upload');
 const {
   requireFields,
   asInt,
@@ -91,7 +91,7 @@ const uploadClinicalRecord = asyncHandler(async (req, res) => {
   } catch (error) {
     // Si la validacion falla despues de que multer escribio el archivo, se
     // elimina para no dejar PDFs huerfanos en disco.
-    fs.unlink(req.file.path, () => {});
+    removeUploadedFile(req.file);
     throw error;
   }
 });

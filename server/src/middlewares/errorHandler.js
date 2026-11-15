@@ -21,7 +21,9 @@ function errorHandler(error, req, res, next) {
   const status = Number(error.status) || 500;
 
   if (status >= 500) {
-    console.error(`[${req.method} ${req.originalUrl}]`, error);
+    // Los datos de la peticion se pasan como argumentos, nunca como cadena
+    // de formato: si fueran plantilla, un `%s` en la URL alteraria la salida.
+    console.error('[%s %s]', req.method, req.originalUrl, error);
   }
 
   const body = {
